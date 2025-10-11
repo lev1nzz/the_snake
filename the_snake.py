@@ -112,6 +112,9 @@ class Snake(GameObject):
     :type next_direction: NoneType | tuple
     :param body_color: цвет змейки. По умолчанию - зеленый
     :type body_color: tuple 
+    :param last: Хранит в себе позицию последнего элемента перед тем как
+    стереть его.
+    :type last: None
     '''
     def __init__(self):
         super().__init__()
@@ -120,6 +123,7 @@ class Snake(GameObject):
         self.body_color = SNAKE_COLOR
         self.direction = RIGHT
         self.next_direction = None
+        self.last = None
 
     
     def update_direction(self):
@@ -130,8 +134,35 @@ class Snake(GameObject):
             
     def move(self):
         '''Обновляет позицию змейки.'''
-        pass
-
+        current_head_position = self.get_head_position()
+        if self.direction == RIGHT:
+            new_position_head = (
+                current_head_position[0] + GRID_SIZE,
+                current_head_position[1]
+            )
+        elif self.direction == LEFT:
+            new_position_head = (
+                current_head_position[0] - GRID_SIZE,
+                current_head_position[1]
+            )
+        elif self.direction == UP:
+            new_position_head = (
+                current_head_position[0],
+                current_head_position[1] - GRID_SIZE
+            )
+        elif self.direction == DOWN:
+            new_position_head = (
+            current_head_position[0],
+            current_head_position[1] + GRID_SIZE,
+            )
+        
+        self.positions.insert(0, new_position_head)
+        
+        if len(self.positions) > self.length:
+            self.positions.pop()
+        else:
+            self.length += 1
+        
     def draw(self):
         '''Отрисовывает змейку на экране, затирая след.'''
         for position in self.positions[:-1]:
