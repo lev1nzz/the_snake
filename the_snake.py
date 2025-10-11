@@ -50,10 +50,6 @@ class GameObject:
     :type position: tuple
     :param body_color: Цвет объекта. Будет переопределен объектом класса
     :type body_color: None
-    
-    :method draw: Отрисовка объектов на игровом поле. Будет переопределен
-                объектом класса
-    :type draw: None
     '''
     
     def __init__(self):
@@ -61,6 +57,10 @@ class GameObject:
         self.body_color = None
         
     def draw(self):
+        '''
+        Отрисовка объектов на игровом поле. Будет переопределен - 
+        объектом класса
+        '''
         pass
     
 
@@ -72,9 +72,7 @@ class Apple(GameObject):
     :param position: Позиция объекта на игровом поле, определяется случайно
     :type position: tuple
     :param body_color: Цвет объекта - Яблоко
-    :type body_color: APPLE_COLOR -> tuple
-    
-    :method draw: Отрисовка объекта - Яблоко, на игровом поле.
+    :type body_color: tuple
     '''
     
     def __init__(self):
@@ -83,6 +81,7 @@ class Apple(GameObject):
         self.body_color = APPLE_COLOR
 
     def draw(self):
+        '''Отрисовка объекта - Яблоко, на игровом поле.'''
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -93,7 +92,7 @@ class Apple(GameObject):
         Метод, возвращает кортеж случайных координат, в приделах сетки
         '''
         value_width = randint(0, GRID_WIDTH - 1) * GRID_SIZE
-        value_height = randint(0, GRID_HEIGHT -1 ) * GRID_SIZE
+        value_height = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
         return (value_width, value_height)
 
 class Snake(GameObject):
@@ -104,21 +103,15 @@ class Snake(GameObject):
     :param length: Длина змейки. По умолчанию значение = 1
     :type length: int
     :param positions: Спиоск позиций частей тела змейки. Начальная позиция
-                    центр экрана.
+    центр экрана.
     :type positions: list[tuple]
     :param direction: Направление движения змейки. По умолчанию - вправо
     :type direction: tuple
-    :param next_direction: следующее направление движения, применяется после
-                        обработки нажатия клавиш. По умолчанию - None
+    :param next_direction: следующее направление движения, применяется после 
+    обработки нажатия клавиш. По умолчанию - None
     :type next_direction: NoneType | tuple
     :param body_color: цвет змейки. По умолчанию - зеленый
-    :type body_color: SNAKE_COLOR -> tuple 
-    
-    :method update_direction: Обновляет навпрвление движения змейки.
-    :method move: Обновляет позицию змейки.
-    :method draw: Отрисовывает Змейку на экране, затирая след.
-    :method get_head_position: Возвращает позицию головы змейки. 
-    :method reset: Сбрасывает змейку в начальное состояние.
+    :type body_color: tuple 
     '''
     def __init__(self):
         super().__init__()
@@ -130,25 +123,30 @@ class Snake(GameObject):
 
     
     def update_direction(self):
+        '''Обновляет навпрвление движения змейки.'''
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
             
     def move(self):
+        '''Обновляет позицию змейки.'''
         pass
 
     def draw(self):
+        '''Отрисовывает змейку на экране, затирая след.'''
         for position in self.positions[:-1]:
             rect = (pygame.Rect(position, (GRID_SIZE, GRID_SIZE)))
             pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
     def get_head_position(self):
+        '''Возвращает позицию головы змейки.'''
         head_rect = pygame.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, head_rect)
         pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
         
     def reset(self):
+        '''Сбрасывает змейку в начальное состояние.'''
         pass
 
 def handle_keys(game_object):
@@ -189,13 +187,6 @@ if __name__ == '__main__':
     main()
 
 
-
-
-
-#     # Отрисовка головы змейки
-#     head_rect = pygame.Rect(self.positions[0], (GRID_SIZE, GRID_SIZE))
-#     pygame.draw.rect(screen, self.body_color, head_rect)
-#     pygame.draw.rect(screen, BORDER_COLOR, head_rect, 1)
 
 #     # Затирание последнего сегмента
 #     if self.last:
