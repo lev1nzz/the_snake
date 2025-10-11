@@ -39,19 +39,79 @@ pygame.display.set_caption('Змейка')
 clock = pygame.time.Clock()
 
 
-# Тут опишите все классы игры.
-...
+# Описание классов игры.
+class GameObject:
+    '''
+    Базовый класс, который содержит в себе два атрибута и
+    один метод, которые будут наследоваться дочерними 
+    классами
+    
+    :param position: Позиция объекта на игровом поле
+    :type position: tuple
+    :param body_color: Цвет объекта. Будет переопределен объектом класса
+    :type body_color: None
+    :method draw: Отрисовка объектов на игровом поле. Будет переопределен
+                объектом класса
+    :type draw: None
+    '''
+    
+    def __init__(self):
+        self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
+        self.body_color = None
+        
+    def draw(self):
+        pass
+    
 
+class Apple(GameObject):
+    '''
+    Дочерний класс, унаследован от базового класса GameObjec.
+    В классе переопределяются атрибуты и метод для объекта - Яблоко
+    
+    :param position: Позиция объекта на игровом поле, определяется случайно
+    :type position: tuple
+    :param body_color: Цвет объекта - Яблоко
+    :type body_color: APPLE_COLOR -> tuple
+    :method draw: Отрисовка объекта - Яблоко, на игровом поле.
+    '''
+    
+    def __init__(self):
+        super().__init__()
+        self.position = Apple.randomize_position()
+        self.body_color = APPLE_COLOR
+
+    def draw(self):
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+        
+    @staticmethod
+    def randomize_position() -> tuple:
+        '''
+        Метод, возвращает кортеж случайных координат,
+        полученый в результате деления размеров экрана на случайное значение
+        в диапозоне количества клеток размером 20x20 по соответсвующему им
+        расположению
+        '''
+        value_width = randint(0, 33)
+        value_height = randint(0, 25)
+        value_random = (
+            (SCREEN_WIDTH // value_width),
+            (SCREEN_HEIGHT // value_height)
+        )
+        return value_random
+        
 
 def main():
     # Инициализация PyGame:
     pygame.init()
     # Тут нужно создать экземпляры классов.
-    ...
-
-    # while True:
-    #     clock.tick(SPEED)
-
+    apple = Apple()
+    
+    while True:
+        clock.tick(SPEED)
+        apple.draw()
+        pygame.display.update()
         # Тут опишите основную логику игры.
         # ...
 
@@ -60,11 +120,7 @@ if __name__ == '__main__':
     main()
 
 
-# Метод draw класса Apple
-# def draw(self):
-#     rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-#     pygame.draw.rect(screen, self.body_color, rect)
-#     pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+
 
 # # Метод draw класса Snake
 # def draw(self):
