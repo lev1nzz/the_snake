@@ -25,6 +25,9 @@ BORDER_COLOR = (93, 216, 228)
 # Цвет яблока
 APPLE_COLOR = (255, 0, 0)
 
+# Цвет несъедобного яблока
+ANOTHER_APPLE_COLOR = (127, 123, 32)
+
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
@@ -93,6 +96,25 @@ class Apple(GameObject):
         value_width = randint(0, GRID_WIDTH - 1) * GRID_SIZE
         value_height = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
         return (value_width, value_height)
+
+
+class UninedibleApple(Apple):
+    """
+    Дочерний класс, унаследовн от дочернего класса Apple.
+    В классе описывается противоположный по смыслу яблока объект -
+    несъедобное яблоко. Атрибуты и методы переопределяются.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.position = self.randomize_position()
+        self.body_color = ANOTHER_APPLE_COLOR
+    
+    def draw(self):
+        """Отрисовка объекта - Несъедобное яблоко, на игровом поле."""
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 class Snake(GameObject):
@@ -220,16 +242,20 @@ def handle_keys(game_object):
 def main():
     """Основная функция игры"""
     pygame.init()
-    # Тут нужно создать экземпляры классов.
     apple = Apple()
     snake = Snake()
+    another_apple = UninedibleApple()
 
     while True:
         clock.tick(SPEED)
         handle_keys(snake)
         snake.update_direction()
         snake.move()
+        
+        screen.fill(BOARD_BACKGROUND_COLOR)
+        
         apple.draw()
+        another_apple.draw()
         snake.draw()
 
         if apple.position == snake.positions[0]:
@@ -237,8 +263,17 @@ def main():
             apple.position = apple.randomize_position()
 
         if snake.get_head_position() in snake.positions[1:]:
-            screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
+        # Проверка на валидность тела змейки
+        if another_apple.position == snake.positions[0]:
+            # Если тело змейки - только голова: Игра не остановиться.
+            if len(snake.positions) == 1:
+                snake.reset()
+            else:
+                snake.positions.pop()
+                snake.length -= 1
+            another_apple.position = another_apple.randomize_position()
+            
 
         pygame.display.update()
 
