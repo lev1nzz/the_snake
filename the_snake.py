@@ -115,12 +115,12 @@ class UninedibleApple(Apple):
     :param body_color: Цвет объекта - Несъедобное яблоко
     :type body_color: tuple
     """
-    
+
     def __init__(self):
         super().__init__()
         self.position = self.randomize_position()
         self.body_color = ANOTHER_APPLE_COLOR
-    
+
     def draw(self):
         """Отрисовка объекта - Несъедобное яблоко, на игровом поле."""
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
@@ -133,7 +133,7 @@ class Stone(Apple):
     Дочерний класс, унаследовн от дочернего класса Apple.
     В классе описывается новый объект на игровом поле.
     Атрибуты и методы переопределяются.
-    
+
     :param position: Позиция объекта на игровом поле, определяется случайно
     :type position: tuple
     :param body_color: Цвет объекта - Камень
@@ -144,13 +144,13 @@ class Stone(Apple):
         super().__init__()
         self.position = self.randomize_position()
         self.body_color = STONE_COLOR
-        
+
     def draw(self):
         """Отрисовка объекта - Камень, на игровом поле."""
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
-        
+
 
 class Snake(GameObject):
     """
@@ -278,7 +278,6 @@ def score_statistic():
     """Функция записывает в файл с ращирением .txt - результаты игры."""
     with open('score_stats.txt', 'a', encoding='utf-8') as f:
         f.write(f'Game Over! Ваш счёт за прошлую игру: {score}\n')
-    
 
 
 def main():
@@ -288,19 +287,19 @@ def main():
     snake = Snake()
     stone = Stone()
     another_apple = UninedibleApple()
-    
+
     speed = INIT_SPEED
     global score
     score = 0
-    
+
     while True:
         clock.tick(speed)
         handle_keys(snake)
         snake.update_direction()
         snake.move()
-        
+
         screen.fill(BOARD_BACKGROUND_COLOR)
-        
+
         apple.draw()
         another_apple.draw()
         stone.draw()
@@ -309,7 +308,8 @@ def main():
         if apple.position == snake.positions[0]:
             snake.length += 1
             score += 2
-            if speed <= MAX_SPEED: speed += 2
+            if speed <= MAX_SPEED:
+                speed += 2
             apple.position = apple.randomize_position()
 
         # Проверка на столкновение головы с телом змейки
@@ -339,8 +339,6 @@ def main():
                 snake.positions.pop()
                 snake.length -= 1
             another_apple.position = another_apple.randomize_position()
-            
-
         pygame.display.update()
 
 
