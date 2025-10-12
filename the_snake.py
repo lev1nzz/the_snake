@@ -31,8 +31,11 @@ ANOTHER_APPLE_COLOR = (127, 123, 32)
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
-# Скорость движения змейки:
-SPEED = 20
+# Начальная корость движения змейки:
+INIT_SPEED = 5
+
+# Максимальная скорость движения змейки:
+MAX_SPEED = 25
 
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
@@ -239,15 +242,26 @@ def handle_keys(game_object):
                 game_object.next_direction = RIGHT
 
 
+def score_statistic():
+    """Функция записывает в файл с ращирением .txt - результаты игры."""
+    with open('score_stats.txt', 'a', encoding='utf-8') as f:
+        f.write(f'Game Over! Ваш счёт за прошлую игру: {score}\n')
+    
+
+
 def main():
     """Основная функция игры"""
     pygame.init()
     apple = Apple()
     snake = Snake()
     another_apple = UninedibleApple()
-
+    
+    speed = INIT_SPEED
+    global score
+    score = 0
+    
     while True:
-        clock.tick(SPEED)
+        clock.tick(speed)
         handle_keys(snake)
         snake.update_direction()
         snake.move()
@@ -260,15 +274,22 @@ def main():
 
         if apple.position == snake.positions[0]:
             snake.length += 1
+            if speed <= MAX_SPEED: speed += 2
+            score += 2
             apple.position = apple.randomize_position()
 
         if snake.get_head_position() in snake.positions[1:]:
             snake.reset()
+            score_statistic()
+            speed = INIT_SPEED
+
         # Проверка на валидность тела змейки
         if another_apple.position == snake.positions[0]:
-            # Если тело змейки - только голова: Игра не остановиться.
+            # Если тело змейки - только голова: Игра Начнется заново
             if len(snake.positions) == 1:
                 snake.reset()
+                score_statistic()
+                speed = INIT_SPEED
             else:
                 snake.positions.pop()
                 snake.length -= 1
@@ -280,3 +301,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    score_statistic()
