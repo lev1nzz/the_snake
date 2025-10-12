@@ -28,6 +28,9 @@ APPLE_COLOR = (255, 0, 0)
 # Цвет несъедобного яблока
 ANOTHER_APPLE_COLOR = (127, 123, 32)
 
+# Цвет камня
+STONE_COLOR = (224, 224, 224)
+
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
@@ -106,6 +109,11 @@ class UninedibleApple(Apple):
     Дочерний класс, унаследовн от дочернего класса Apple.
     В классе описывается противоположный по смыслу яблока объект -
     несъедобное яблоко. Атрибуты и методы переопределяются.
+
+    :param position: Позиция объекта на игровом поле, определяется случайно
+    :type position: tuple
+    :param body_color: Цвет объекта - Несъедобное яблоко
+    :type body_color: tuple
     """
     
     def __init__(self):
@@ -119,6 +127,30 @@ class UninedibleApple(Apple):
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
+
+class Stone(Apple):
+    """
+    Дочерний класс, унаследовн от дочернего класса Apple.
+    В классе описывается новый объект на игровом поле.
+    Атрибуты и методы переопределяются.
+    
+    :param position: Позиция объекта на игровом поле, определяется случайно
+    :type position: tuple
+    :param body_color: Цвет объекта - Камень
+    :type body_color: tuple
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.position = self.randomize_position()
+        self.body_color = STONE_COLOR
+        
+    def draw(self):
+        """Отрисовка объекта - Камень, на игровом поле."""
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+        
 
 class Snake(GameObject):
     """
@@ -254,6 +286,7 @@ def main():
     pygame.init()
     apple = Apple()
     snake = Snake()
+    stone = Stone()
     another_apple = UninedibleApple()
     
     speed = INIT_SPEED
@@ -270,25 +303,37 @@ def main():
         
         apple.draw()
         another_apple.draw()
+        stone.draw()
         snake.draw()
-
+        # Проверка на столкновение с яблоком
         if apple.position == snake.positions[0]:
             snake.length += 1
-            if speed <= MAX_SPEED: speed += 2
             score += 2
+            if speed <= MAX_SPEED: speed += 2
             apple.position = apple.randomize_position()
 
+        # Проверка на столкновение головы с телом змейки
         if snake.get_head_position() in snake.positions[1:]:
-            snake.reset()
             score_statistic()
+            snake.reset()
+            score = 0
             speed = INIT_SPEED
+
+        # Проверка на столкновение с камнем
+        if stone.position == snake.positions[0]:
+            score_statistic()
+            snake.reset()
+            score = 0
+            speed = INIT_SPEED
+            stone.position = stone.randomize_position()
 
         # Проверка на валидность тела змейки
         if another_apple.position == snake.positions[0]:
             # Если тело змейки - только голова: Игра Начнется заново
             if len(snake.positions) == 1:
-                snake.reset()
                 score_statistic()
+                snake.reset()
+                score = 0
                 speed = INIT_SPEED
             else:
                 snake.positions.pop()
