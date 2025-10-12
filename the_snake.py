@@ -155,10 +155,9 @@ class Snake(GameObject):
                 current_head_position[0],
                 current_head_position[1] + GRID_SIZE,
             )
-
+        # Обработка краев экрана.
         new_position_x = new_position_head[0] % SCREEN_WIDTH
         new_position_y = new_position_head[1] % SCREEN_HEIGHT
-
         new_position_head = (new_position_x, new_position_y)
 
         if len(self.positions) >= self.length:
