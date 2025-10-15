@@ -330,14 +330,9 @@ def check_game_over(snake, stone):
     """Проверка условий завершения игры."""
     head_position = snake.get_head_position()
 
-    # Столкновение с телом змейки
-    if head_position in snake.positions[1:]:
-        return True
-
-    # Столкновение с камнем
-    if stone.position == head_position:
-        return True
-    return False
+    # Столкновение с телом змейки или с камнем
+    return (head_position in snake.positions[1:]
+            or stone.position == head_position)
 
 
 def reset_game_state(snake, apple, another_apple, stone):
