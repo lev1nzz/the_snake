@@ -77,24 +77,26 @@ class GameObject:
         )
 
 
-class Apple(GameObject):
+class PhysicalObject(GameObject):
     """
-    Дочерний класс, переопределяются атрибуты и метод для объекта - Яблоко.
+    Промежуточный базовый класс, для физицеских объектов на игровом поле.
 
-    :param position: Позиция объекта на игровом поле, определяется случайно
+    Представляет общие методы отрисовки на экране, и генерацию случайной
+    позиции при создании, исключая занятые клетки.
+
+    :param position: Позиция объекта на игровом поле.
     :type position: tuple
-    :param body_color: Цвет объекта - Яблоко
+    :param body_color: Основной цвет объекта для отрисовки.
     :type body_color: tuple
     """
 
-    def __init__(self, occupied_positions=None, body_color=APPLE_COLOR):
-        """Метод инициализации объекта."""
+    def __init__(self, occupied_positions=None):
+        """Методо инициализации объекта."""
         super().__init__()
-        self.body_color = body_color
         self.randomize_position(occupied_positions or set())
 
     def draw(self):
-        """Отрисовка объекта - Яблоко, на игровом поле."""
+        """Отрисовка физических объектов на игровом поле."""
         rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, self.body_color, rect)
         pg.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -109,6 +111,25 @@ class Apple(GameObject):
             if new_position not in occupied_positions:
                 self.position = new_position
                 break
+
+
+class Apple(PhysicalObject):
+    """
+    Класс яблока - игрового объекта, который может быть съеден змейкой.
+
+    Наследуется от класса PhysicalObject. Позиция генерируется
+    случайным образом на игровом поле.
+
+    :param position: Позиция объекта на игровом поле, определяется случайно
+    :type position: tuple
+    :param body_color: Цвет объекта - Яблоко
+    :type body_color: tuple
+    """
+
+    def __init__(self, occupied_positions=None, body_color=APPLE_COLOR):
+        """Метод инициализации объекта."""
+        super().__init__(occupied_positions)
+        self.body_color = body_color
 
 
 class UninedibleApple(Apple):
@@ -127,9 +148,12 @@ class UninedibleApple(Apple):
         self.body_color = ANOTHER_APPLE_COLOR
 
 
-class Stone(GameObject):
+class Stone(PhysicalObject):
     """
-    Дочерний класс, описывает игровой объект - Камень.
+    Класс камня - статичного препятствия на игровом поле.
+
+    Наследуется от класса PhysicalObject. При столкновении с камнем
+    змейка погибает. Позиция генерируется случайным образом на игровом поле.
 
     :param position: Позиция объекта на игровом поле, определяется случайно
     :type position: tuple
@@ -137,28 +161,10 @@ class Stone(GameObject):
     :type body_color: tuple
     """
 
-    def __init__(self, occupied_positions=None):
+    def __init__(self, occupied_positions=None, body_color=STONE_COLOR):
         """Метод инициализации объекта."""
-        super().__init__()
-        self.randomize_position(occupied_positions or set())
-        self.body_color = STONE_COLOR
-
-    def draw(self):
-        """Отрисовка камня на игровом поле."""
-        rect = pg.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, rect)
-        pg.draw.rect(screen, BORDER_COLOR, rect, 1)
-
-    def randomize_position(self, occupied_positions):
-        """Метод, возвращает кортеж случайных координат, в приделах сетки."""
-        while True:
-            value_width_x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
-            value_height_y = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            new_position = (value_width_x, value_height_y)
-
-            if new_position not in occupied_positions:
-                self.position = new_position
-                break
+        super().__init__(occupied_positions)
+        self.body_color = body_color
 
 
 class Snake(GameObject):
@@ -204,11 +210,11 @@ class Snake(GameObject):
 
     def move(self):
         """Обновляет позицию змейки."""
-        x, y = self.get_head_position()
+        current_head_x, current_head_y = self.get_head_position()
         dx, dy = self.direction
 
-        new_x = (x + dx * GRID_SIZE) % SCREEN_WIDTH
-        new_y = (y + dy * GRID_SIZE) % SCREEN_HEIGHT
+        new_x = (current_head_x + dx * GRID_SIZE) % SCREEN_WIDTH
+        new_y = (current_head_y + dy * GRID_SIZE) % SCREEN_HEIGHT
 
         new_position_head = (new_x, new_y)
 
@@ -240,8 +246,7 @@ class Snake(GameObject):
     def decrease_length(self):
         """Уменьшает длину змейки на один сегмент."""
         if len(self.positions) > 1:
-            self.last = self.positions[-1]
-            self.positions.pop()
+            self.last = self.positions.pop()
             self.length -= 1
             return True
         return False
@@ -299,14 +304,24 @@ def draw_initial_screen(snake, apple, another_apple, stone):
     pg.display.update()
 
 
-def handle_apple_collision(snake, apple, occupied_positions, score, speed):
+def handle_apple_collision(
+    snake,
+    apple,
+    occupied_positions,
+    current_score,
+    current_speed
+):
     """Обработка столкновения с яблоком."""
     snake.length += 1
-    score += 2
-    if speed <= MAX_SPEED:
-        speed += 2
+    new_score = current_score + 2
+
+    if current_speed <= MAX_SPEED:
+        new_speed = current_speed + 2
+    else:
+        new_speed = current_speed
+
     apple.randomize_position(occupied_positions)
-    return score, speed
+    return new_score, new_speed
 
 
 def handle_another_apple_collision(
